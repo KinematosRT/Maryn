@@ -1,0 +1,34 @@
+node_modules/
+dist/
+.env
+.env.local
+.env*.local
+*.tgz
+
+# Next.js build output
+.next/
+
+# Node version manager config (local dev preference)
+.node-version
+.nvmrc
+.npmrc
+
+# OS artifacts
+Thumbs.db
+.DS_Store
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Demo materials (local only)
+demo/
+context-template/
+
+# Ops scripts with credentials/infra topology (never commit)
+infrastructure/*.ps1
+infrastructure/*.sh

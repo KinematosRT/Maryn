@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+test
+packages
+examples
+*.md
+!package.json
+infrastructure
+.node-version
+.npmrc
+.idea
+.next
+.env

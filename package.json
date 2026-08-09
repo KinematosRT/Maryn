@@ -1,0 +1,41 @@
+{
+  "name": "@maryn/mcp-server",
+  "version": "0.3.0",
+  "description": "Maryn MCP Server - Memory As a Repo: YAML & NLP",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "maryn": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "start:http": "node dist/server/http.js",
+    "sync:jira": "tsx src/sync/index.ts",
+    "lint": "tsc --noEmit",
+    "test": "npx tsx --test test/engine.test.ts",
+    "test:e2e": "npx tsx test/e2e.test.ts",
+    "dashboard": "tsx src/dashboard/server.ts"
+  },
+  "dependencies": {
+    "@e2b/code-interpreter": "^1.5.0",
+    "@hono/node-server": "^1.19.11",
+    "@letta-ai/letta-client": "^1.7.12",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "gray-matter": "^4.0.3",
+    "hono": "^4.12.5",
+    "jose": "^6.2.1",
+    "simple-git": "^3.27.0",
+    "yaml": "^2.8.2",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  }
+}
