@@ -1,0 +1,685 @@
+{
+  "generatedAt": "2026-08-09T20:34:57.875Z",
+  "revision": "6e108dd",
+  "workingTreeClean": true,
+  "taskCount": 20,
+  "configs": [
+    {
+      "config": {
+        "id": "default",
+        "title": "Default posture",
+        "summary": "Server started as the quickstart describes, with no write key configured.",
+        "env": {},
+        "enforcing": false
+      },
+      "results": [
+        {
+          "id": "R1",
+          "family": "retrieval",
+          "title": "markdown read returns the stored record",
+          "claim": "context_read reproduces description, tags and body of a markdown file without alteration.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 659
+        },
+        {
+          "id": "R2",
+          "family": "retrieval",
+          "title": "YAML read returns the stored structure",
+          "claim": "context_read separates declared attributes from structured data and keeps both intact.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 679
+        },
+        {
+          "id": "R3",
+          "family": "retrieval",
+          "title": "single term search returns the exact match set",
+          "claim": "A term present in one record retrieves that record and no other.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 671
+        },
+        {
+          "id": "R4",
+          "family": "retrieval",
+          "title": "multi term search joins terms with AND",
+          "claim": "Every term of a query has to appear in a record for it to be returned.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 642
+        },
+        {
+          "id": "R5",
+          "family": "retrieval",
+          "title": "absent terms retrieve nothing",
+          "claim": "A query with no match reports no result instead of returning a near neighbour.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 651
+        },
+        {
+          "id": "R6",
+          "family": "retrieval",
+          "title": "tree lists the store and partitions it",
+          "claim": "context_tree covers every stored record and splits pinned from unpinned by location.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 646
+        },
+        {
+          "id": "R7",
+          "family": "retrieval",
+          "title": "snapshot carries pinned records only",
+          "claim": "context_snapshot contains every pinned record and leaks no unpinned one.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 646
+        },
+        {
+          "id": "R8",
+          "family": "retrieval",
+          "title": "snapshot honours the declared character budget",
+          "claim": "A record declaring char_limit is truncated at that budget before it enters the context.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 1234
+        },
+        {
+          "id": "R9",
+          "family": "retrieval",
+          "title": "repeated retrieval is byte identical",
+          "claim": "Identical requests return identical bytes, which is what makes the store usable as evidence.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 1927
+        },
+        {
+          "id": "I1",
+          "family": "injection",
+          "title": "paths stay inside the store",
+          "claim": "No path reaches outside the context repository or into its git internals, on read or on write.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 646
+        },
+        {
+          "id": "I2",
+          "family": "injection",
+          "title": "search payloads stay inert",
+          "claim": "Shell, template and markup payloads in a query are matched as text and never evaluated.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 726
+        },
+        {
+          "id": "I3",
+          "family": "injection",
+          "title": "oversized writes are refused",
+          "claim": "A payload above the size cap is refused and leaves no record behind.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 4800
+        },
+        {
+          "id": "I4",
+          "family": "injection",
+          "title": "attribute injection stays contained",
+          "claim": "A description carrying an attribute block is stored as text and creates no new attribute.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 1366
+        },
+        {
+          "id": "I5",
+          "family": "injection",
+          "title": "structured keys do not pollute the runtime",
+          "claim": "Reserved keys in structured data cannot alter how later records are read or written.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 6559
+        },
+        {
+          "id": "I6",
+          "family": "injection",
+          "title": "pinned context refuses unauthenticated changes",
+          "claim": "A caller without the write key can neither rewrite nor delete a pinned record.",
+          "passed": false,
+          "detail": "pinned record was rewritten without a write key",
+          "durationMs": 899
+        },
+        {
+          "id": "I7",
+          "family": "injection",
+          "title": "parallel writes each keep their commit",
+          "claim": "Writes issued at the same time all land and all stay traceable in history.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 3293
+        },
+        {
+          "id": "S1",
+          "family": "scanner",
+          "title": "credential payloads are refused",
+          "claim": "Every seeded credential family is caught before it can be stored.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 713
+        },
+        {
+          "id": "S2",
+          "family": "scanner",
+          "title": "documentation payloads are accepted",
+          "claim": "Placeholders, identifiers and prose about credentials do not block a write.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 1970
+        },
+        {
+          "id": "S3",
+          "family": "scanner",
+          "title": "warn tier data is recorded, not blocked",
+          "claim": "Personal data and network topology are flagged for review without stopping the write.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 1169
+        },
+        {
+          "id": "S4",
+          "family": "scanner",
+          "title": "a refused write leaves nothing behind",
+          "claim": "A refused credential appears in no record, no listing and no commit.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 695
+        }
+      ],
+      "passed": 19,
+      "total": 20,
+      "passRate": 0.95,
+      "families": [
+        {
+          "family": "retrieval",
+          "passed": 9,
+          "total": 9
+        },
+        {
+          "family": "injection",
+          "passed": 6,
+          "total": 7
+        },
+        {
+          "family": "scanner",
+          "passed": 4,
+          "total": 4
+        }
+      ],
+      "fixtureOutcomes": [
+        {
+          "fixture": "aws-access-key",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "azure-client-secret",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "base64-checksum",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "commit-sha",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "connection-string-credentials",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "connection-string-host",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "environment-reference",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "generic-api-key",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "github-token",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "gitlab-pat",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "gitlab-runner-token",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "placeholder-angle-bracket",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "private-address",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "private-key",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "prose-mention",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "signed-jwt",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "slack-token",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "test-card-number",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "trace-uuid",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "work-email",
+          "secret": false,
+          "blocked": false
+        }
+      ],
+      "scanner": {
+        "truePositives": 10,
+        "falsePositives": 0,
+        "trueNegatives": 10,
+        "falseNegatives": 0,
+        "fixtures": 20,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "residual": {
+        "trials": 20,
+        "failures": 1,
+        "observed": 0.05,
+        "upperBound95": 0.19600723677401638
+      }
+    },
+    {
+      "config": {
+        "id": "guarded",
+        "title": "Guarded posture",
+        "summary": "Server started with SYSTEM_WRITE_KEY set, so pinned records need an authenticated write.",
+        "env": {
+          "SYSTEM_WRITE_KEY": "golden-suite-write-key"
+        },
+        "enforcing": true,
+        "recommendation": "Set SYSTEM_WRITE_KEY on any deployment whose pinned records have to hold against an unauthenticated caller."
+      },
+      "results": [
+        {
+          "id": "R1",
+          "family": "retrieval",
+          "title": "markdown read returns the stored record",
+          "claim": "context_read reproduces description, tags and body of a markdown file without alteration.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 673
+        },
+        {
+          "id": "R2",
+          "family": "retrieval",
+          "title": "YAML read returns the stored structure",
+          "claim": "context_read separates declared attributes from structured data and keeps both intact.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 709
+        },
+        {
+          "id": "R3",
+          "family": "retrieval",
+          "title": "single term search returns the exact match set",
+          "claim": "A term present in one record retrieves that record and no other.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 723
+        },
+        {
+          "id": "R4",
+          "family": "retrieval",
+          "title": "multi term search joins terms with AND",
+          "claim": "Every term of a query has to appear in a record for it to be returned.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 711
+        },
+        {
+          "id": "R5",
+          "family": "retrieval",
+          "title": "absent terms retrieve nothing",
+          "claim": "A query with no match reports no result instead of returning a near neighbour.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 772
+        },
+        {
+          "id": "R6",
+          "family": "retrieval",
+          "title": "tree lists the store and partitions it",
+          "claim": "context_tree covers every stored record and splits pinned from unpinned by location.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 680
+        },
+        {
+          "id": "R7",
+          "family": "retrieval",
+          "title": "snapshot carries pinned records only",
+          "claim": "context_snapshot contains every pinned record and leaks no unpinned one.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 653
+        },
+        {
+          "id": "R8",
+          "family": "retrieval",
+          "title": "snapshot honours the declared character budget",
+          "claim": "A record declaring char_limit is truncated at that budget before it enters the context.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 677
+        },
+        {
+          "id": "R9",
+          "family": "retrieval",
+          "title": "repeated retrieval is byte identical",
+          "claim": "Identical requests return identical bytes, which is what makes the store usable as evidence.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 691
+        },
+        {
+          "id": "I1",
+          "family": "injection",
+          "title": "paths stay inside the store",
+          "claim": "No path reaches outside the context repository or into its git internals, on read or on write.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 938
+        },
+        {
+          "id": "I2",
+          "family": "injection",
+          "title": "search payloads stay inert",
+          "claim": "Shell, template and markup payloads in a query are matched as text and never evaluated.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 2303
+        },
+        {
+          "id": "I3",
+          "family": "injection",
+          "title": "oversized writes are refused",
+          "claim": "A payload above the size cap is refused and leaves no record behind.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 2103
+        },
+        {
+          "id": "I4",
+          "family": "injection",
+          "title": "attribute injection stays contained",
+          "claim": "A description carrying an attribute block is stored as text and creates no new attribute.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 844
+        },
+        {
+          "id": "I5",
+          "family": "injection",
+          "title": "structured keys do not pollute the runtime",
+          "claim": "Reserved keys in structured data cannot alter how later records are read or written.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 1116
+        },
+        {
+          "id": "I6",
+          "family": "injection",
+          "title": "pinned context refuses unauthenticated changes",
+          "claim": "A caller without the write key can neither rewrite nor delete a pinned record.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 646
+        },
+        {
+          "id": "I7",
+          "family": "injection",
+          "title": "parallel writes each keep their commit",
+          "claim": "Writes issued at the same time all land and all stay traceable in history.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 3045
+        },
+        {
+          "id": "S1",
+          "family": "scanner",
+          "title": "credential payloads are refused",
+          "claim": "Every seeded credential family is caught before it can be stored.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 640
+        },
+        {
+          "id": "S2",
+          "family": "scanner",
+          "title": "documentation payloads are accepted",
+          "claim": "Placeholders, identifiers and prose about credentials do not block a write.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 1744
+        },
+        {
+          "id": "S3",
+          "family": "scanner",
+          "title": "warn tier data is recorded, not blocked",
+          "claim": "Personal data and network topology are flagged for review without stopping the write.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 1142
+        },
+        {
+          "id": "S4",
+          "family": "scanner",
+          "title": "a refused write leaves nothing behind",
+          "claim": "A refused credential appears in no record, no listing and no commit.",
+          "passed": true,
+          "detail": "ok",
+          "durationMs": 707
+        }
+      ],
+      "passed": 20,
+      "total": 20,
+      "passRate": 1,
+      "families": [
+        {
+          "family": "retrieval",
+          "passed": 9,
+          "total": 9
+        },
+        {
+          "family": "injection",
+          "passed": 7,
+          "total": 7
+        },
+        {
+          "family": "scanner",
+          "passed": 4,
+          "total": 4
+        }
+      ],
+      "fixtureOutcomes": [
+        {
+          "fixture": "aws-access-key",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "azure-client-secret",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "base64-checksum",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "commit-sha",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "connection-string-credentials",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "connection-string-host",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "environment-reference",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "generic-api-key",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "github-token",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "gitlab-pat",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "gitlab-runner-token",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "placeholder-angle-bracket",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "private-address",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "private-key",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "prose-mention",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "signed-jwt",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "slack-token",
+          "secret": true,
+          "blocked": true
+        },
+        {
+          "fixture": "test-card-number",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "trace-uuid",
+          "secret": false,
+          "blocked": false
+        },
+        {
+          "fixture": "work-email",
+          "secret": false,
+          "blocked": false
+        }
+      ],
+      "scanner": {
+        "truePositives": 10,
+        "falsePositives": 0,
+        "trueNegatives": 10,
+        "falseNegatives": 0,
+        "fixtures": 20,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "residual": {
+        "trials": 20,
+        "failures": 0,
+        "observed": 0,
+        "upperBound95": 0.11915783736096448
+      }
+    }
+  ],
+  "pooled": {
+    "trials": 40,
+    "failures": 1,
+    "observed": 0.025,
+    "upperBound95": 0.10458856696171026
+  },
+  "pooledScanner": {
+    "truePositives": 20,
+    "falsePositives": 0,
+    "trueNegatives": 20,
+    "falseNegatives": 0,
+    "fixtures": 40,
+    "precision": 1,
+    "recall": 1,
+    "f1": 1
+  }
+}
