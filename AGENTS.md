@@ -12,6 +12,7 @@ npm install
 npm run build          # tsc
 npm test               # unit tests
 npm run test:e2e       # MCP protocol e2e
+npm run eval           # 20 golden tasks over two postures, writes eval/
 npm run dashboard      # dev dashboard (tsx src/dashboard/server.ts)
 npm run sync:jira      # run Jira sync agent
 ```
@@ -111,6 +112,25 @@ Backend agents that pull from external tools on a schedule and write to the cont
 | `jira-sync` | Jira REST v3 | 15 min | `journal/<date>/jira-sync/` |
 | `gitlab-sync` | GitLab API | 15 min | `journal/<date>/gitlab-sync/` |
 | `sharepoint-sync` | MS Graph | 1 hr | `reference/sharepoint/` |
+
+### Golden task suite (`src/eval/`)
+
+Scores the MCP surface over stdio: retrieval correctness, injection resistance and
+secret scanner precision and recall on seeded fixtures. Each task gets its own
+seeded store and its own server process, so tasks cannot influence each other.
+
+| Module | Role |
+|--------|------|
+| `tasks/` | The twenty tasks, grouped by family |
+| `corpus.ts` | Seeded records and the ground truth a correct read has to return |
+| `fixtures.ts` | Labelled payloads for the scanner, credential and benign |
+| `session.ts` | MCP client bound to a freshly spawned server |
+| `statistics.ts` | Pass rates, confusion table and the Wilson upper bound |
+| `report.ts` | The one page verdict |
+
+Add a task by appending to the family module. The catalogue tests check the count,
+the identifiers and that every fixture belongs to exactly one group, so update
+`test/eval.test.ts` in the same change.
 
 ### Dashboard (`src/dashboard/`)
 

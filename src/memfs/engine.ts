@@ -1,6 +1,6 @@
 import { readFile, writeFile, mkdir, readdir, unlink, stat } from "node:fs/promises";
 import { join, relative, dirname, extname, resolve, isAbsolute, normalize } from "node:path";
-import { homedir, tmpdir } from "node:os";
+import { homedir } from "node:os";
 import { createHash } from "node:crypto";
 import matter from "gray-matter";
 import { parse as yamlParse, stringify as yamlStringify } from "yaml";
@@ -16,7 +16,7 @@ import { scanContent } from "../sanitize/scanner.js";
 
 export class SanitizerBlockError extends Error {
   constructor(details: string) {
-    super(`Sanitizer blocked commit: ${details}`);
+    super(`Sanitizer blocked write: ${details}`);
   }
 }
 
@@ -34,6 +34,8 @@ export class MemFSEngine {
   private remoteUrl: string | null = null;
   /** 10 MB cap to prevent memory exhaustion on reads */
   private static readonly MAX_FILE_BYTES = 10 * 1024 * 1024;
+  /** Git holds a single index lock, so repository operations run one at a time. */
+  private gitLock: Promise<void> = Promise.resolve();
 
   constructor(repoPath: string) {
     if (GIT_URL_RE.test(repoPath)) {
@@ -173,6 +175,9 @@ export class MemFSEngine {
     if (Buffer.byteLength(raw, "utf-8") > MemFSEngine.MAX_FILE_BYTES) {
       throw new Error(`Write payload too large (limit ${MemFSEngine.MAX_FILE_BYTES} bytes)`);
     }
+
+    this.assertNoSecrets(filePath, raw);
+
     await mkdir(dirname(abs), { recursive: true });
     await writeFile(abs, raw, "utf-8");
     await this.commit(filePath, `update ${filePath}`);
@@ -184,34 +189,56 @@ export class MemFSEngine {
     await this.commit(filePath, `delete ${filePath}`);
   }
 
-  private async commit(filePath: string, message: string): Promise<void> {
-    // Scan content before committing; block if secrets detected
-    const abs = resolve(this.root, filePath);
-    const content = await readFile(abs, "utf-8").catch(() => "");
-    if (content) {
-      const violations = scanContent(filePath, content);
-      const blockers = violations.filter((v) => v.severity === "block");
-      if (blockers.length > 0) {
-        const details = blockers
-          .map((v) => `${v.rule} at line ${v.line}`)
-          .join(", ");
-        throw new SanitizerBlockError(details);
-      }
+  /**
+   * Rejects blocking-severity findings before the payload reaches disk, so a
+   * secret never exists as a working-tree file or as a git object.
+   */
+  private assertNoSecrets(filePath: string, content: string): void {
+    const blockers = scanContent(filePath, content).filter(
+      (v) => v.severity === "block",
+    );
+    if (blockers.length > 0) {
+      throw new SanitizerBlockError(
+        blockers.map((v) => `${v.rule} at line ${v.line}`).join(", "),
+      );
     }
+  }
 
-    try {
-      await this.git.add(filePath);
-      await this.git.commit(message, filePath);
-      if (this.remoteUrl) {
-        await this.git.push("origin", "main").catch((err: unknown) => {
-          const msg = err instanceof Error ? err.message : String(err);
-          const safe = msg.replace(/https?:\/\/[^@]*@/g, "https://***@");
-          process.stderr.write(`PUSH_ERROR ${JSON.stringify({ ts: new Date().toISOString(), file: filePath, error: safe })}\n`);
-        });
+  /** Runs repository operations one at a time so parallel writes each get a commit. */
+  private runLocked<T>(op: () => Promise<T>): Promise<T> {
+    const result = this.gitLock.then(op);
+    this.gitLock = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    return result;
+  }
+
+  private logGitFailure(kind: string, filePath: string, err: unknown): void {
+    const msg = err instanceof Error ? err.message : String(err);
+    const safe = msg.replace(/https?:\/\/[^@]*@/g, "https://***@");
+    process.stderr.write(
+      `${kind} ${JSON.stringify({ ts: new Date().toISOString(), file: filePath, error: safe })}\n`,
+    );
+  }
+
+  private commit(filePath: string, message: string): Promise<void> {
+    return this.runLocked(async () => {
+      try {
+        await this.git.add(filePath);
+        await this.git.commit(message, filePath);
+      } catch (err) {
+        // Git unavailable or repository unusable; the file write itself stands.
+        this.logGitFailure("COMMIT_ERROR", filePath, err);
+        return;
       }
-    } catch {
-      // git not available or not initialized; file write still succeeded
-    }
+
+      if (this.remoteUrl) {
+        await this.git
+          .push("origin", "main")
+          .catch((err: unknown) => this.logGitFailure("PUSH_ERROR", filePath, err));
+      }
+    });
   }
 
   async getLog(maxCount = 20): Promise<CommitInfo[]> {
