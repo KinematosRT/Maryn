@@ -187,4 +187,54 @@ describe("MemFSEngine", () => {
     const snapshot = await engine.getContextSnapshot();
     assert.ok(snapshot.systemContext.includes("system/config.yaml"));
   });
+
+  // -- sanitizer and concurrency tests --
+
+  it("writeFile refuses a secret before it reaches disk", async () => {
+    const path = "reference/leaked-key.md";
+
+    await assert.rejects(
+      () => engine.writeFile(path, "AKIAIOSFODNN7EXAMPLE", { description: "leak" }),
+      /Sanitizer blocked write/
+    );
+
+    const tree = await engine.getTree();
+    assert.ok(!tree.files.includes(path), "refused write left a file behind");
+
+    const log = await engine.getLog(50);
+    assert.ok(
+      !log.some((commit) => commit.message.includes("leaked-key")),
+      "refused write left a commit behind"
+    );
+  });
+
+  it("writeFile accepts a connection string that carries no credentials", async () => {
+    await engine.writeFile("reference/local-db.md", "postgres://localhost:5432/maryn", {
+      description: "Local development target",
+    });
+
+    const file = await engine.readFile("reference/local-db.md");
+    assert.equal(file.content, "postgres://localhost:5432/maryn");
+  });
+
+  it("parallel writes each produce their own commit", async () => {
+    const paths = Array.from({ length: 12 }, (_, i) => `journal/parallel/note-${i}.md`);
+
+    await Promise.all(
+      paths.map((path, i) =>
+        engine.writeFile(path, `note ${i}`, { description: `parallel note ${i}` })
+      )
+    );
+
+    const tree = await engine.getTree();
+    const log = await engine.getLog(200);
+
+    for (const path of paths) {
+      assert.ok(tree.files.includes(path), `${path} missing from the tree`);
+      assert.ok(
+        log.some((commit) => commit.message.includes(path)),
+        `${path} missing from git history`
+      );
+    }
+  });
 });

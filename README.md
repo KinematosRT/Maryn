@@ -139,11 +139,33 @@ node dist/index.js
 # 6. The decision is now persistently recorded with full git lineage.
 ```
 
+## Golden Task Suite
+
+Twenty tasks score the MCP surface the way a client sees it: over stdio, against a
+freshly seeded memory store, one store and one server process per task.
+
+```bash
+npm run eval                 # writes eval/report.json and eval/VERDICT.md
+npm run eval -- --out tmp    # write the run elsewhere
+```
+
+| Family | Tasks | What it holds the server to |
+|--------|-------|-----------------------------|
+| Retrieval correctness | 9 | Reads return the stored record, searches return the exact match set, snapshots carry pinned records only and repeat calls are byte identical |
+| Injection resistance | 7 | Path escapes, repository internals, payloads in queries, oversized writes, attribute injection, reserved keys, unauthenticated writes to pinned context and parallel writes |
+| Secret scanner | 4 | Precision and recall over seeded fixtures, measured at the write boundary |
+
+The suite runs against two postures: the quickstart default and a guarded one with
+`SYSTEM_WRITE_KEY` set. A failing task in the guarded posture fails the run.
+[eval/VERDICT.md](eval/VERDICT.md) carries the last recorded run, including the
+residual failure rate and its confidence bound.
+
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `MARYN_CONTEXT_REPO` | `~/.maryn/context` | Path to the Maryn project memory store, for example `maryn-memory` |
+| `SYSTEM_WRITE_KEY` | - | When set, writes under `system/` need a matching `write_key` and deletes are refused |
 | `E2B_API_KEY` | - | E2B API key for sandbox (optional) |
 
 ## Requirements

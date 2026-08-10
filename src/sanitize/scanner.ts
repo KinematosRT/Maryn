@@ -32,12 +32,19 @@ const BLOCK: Pattern[] = [
   { name: "gitlab-pat", re: /glpat-[A-Za-z0-9\-_]{20,}/ },
   { name: "gitlab-runner-token", re: /GR1348941[A-Za-z0-9\-_]{20,}/ },
   {
+    name: "github-token",
+    re: /\b(?:gh[pousr]_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{22,})\b/,
+  },
+  { name: "slack-token", re: /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/ },
+  {
     name: "jwt-full",
     re: /eyJ[A-Za-z0-9_-]{20,}\.eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/,
   },
+  // Only credentials embedded in a connection string are a secret; a bare
+  // host URL is topology, handled by the warn tier below.
   {
-    name: "connection-string",
-    re: /(?:mongodb|postgres|mysql|redis|amqp):\/\/[^\s'"]{10,}/i,
+    name: "connection-string-credentials",
+    re: /(?:mongodb(?:\+srv)?|postgres(?:ql)?|mysql|redis|amqp):\/\/[^\s:'"/@]+:[^\s'"/@]+@/i,
   },
   {
     name: "azure-secret-assignment",
@@ -63,6 +70,10 @@ const WARN: Pattern[] = [
   {
     name: "insee-nir",
     re: /\b[12]\s?\d{2}\s?(?:0[1-9]|1[0-2])\s?\d{2}\s?\d{3}\s?\d{3}\s?\d{2}\b/,
+  },
+  {
+    name: "connection-string-host",
+    re: /(?:mongodb(?:\+srv)?|postgres(?:ql)?|mysql|redis|amqp):\/\/(?![^\s'"/@]+:[^\s'"/@]+@)[^\s'"]{6,}/i,
   },
 ];
 
